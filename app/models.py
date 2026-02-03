@@ -209,6 +209,11 @@ class User(db.Model, UserMixin):
     # Legacy metadata caching fields (will be phased out)
     library_access_json = db.Column(db.Text, nullable=True)
 
+    # Patreon integration fields
+    patreon_id = db.Column(db.String, nullable=True)
+    is_patreon_supporter = db.Column(db.Boolean, nullable=False, default=False)
+    patreon_tier = db.Column(db.String, nullable=True)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 

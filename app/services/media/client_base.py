@@ -449,6 +449,23 @@ class MediaClient(ABC):
         except Exception:
             return 0
 
+    def get_media_counts(self) -> dict[str, int]:
+        """Get media counts from the server (movies, shows, episodes).
+
+        Returns:
+            dict: Dictionary with keys: total_movies, total_shows, total_series, total_episodes
+                  Returns zeros for all counts if the operation fails
+        """
+        logging.warning(
+            f"{self.__class__.__name__} does not implement get_media_counts"
+        )
+        return {
+            "total_movies": 0,
+            "total_shows": 0,
+            "total_series": 0,
+            "total_episodes": 0,
+        }
+
     def get_server_info(self) -> dict:
         """Get lightweight server information without triggering user sync.
 

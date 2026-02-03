@@ -1191,6 +1191,62 @@ class PlexClient(MediaClient):
             logging.error(f"Failed to get Plex user count from database: {e}")
             return 0
 
+    def get_media_counts(self) -> dict[str, int]:
+        """Get media counts from Plex server (movies, shows, episodes)."""
+        try:
+            counts = {
+                "total_movies": 0,
+                "total_shows": 0,
+                "total_series": 0,  # Alias for shows
+                "total_episodes": 0,
+            }
+
+            for section in self.server.library.sections():
+                section_type = getattr(section, "type", None)
+                if section_type == "movie":
+                    # Get total size attribute if available
+                    if hasattr(section, "totalSize"):
+                        counts["total_movies"] += section.totalSize
+                    elif hasattr(section, "totalViewSize"):
+                        counts["total_movies"] += section.totalViewSize
+                    else:
+                        # Fallback: count all items (slower)
+                        counts["total_movies"] += len(section.all())
+                elif section_type == "show":
+                    # Get show count
+                    if hasattr(section, "totalSize"):
+                        counts["total_shows"] += section.totalSize
+                    elif hasattr(section, "totalViewSize"):
+                        counts["total_shows"] += section.totalViewSize
+                    else:
+                        counts["total_shows"] += len(section.all())
+
+                    # Count episodes - use search for efficiency
+                    try:
+                        episodes = section.search(libtype="episode")
+                        counts["total_episodes"] += len(episodes)
+                    except Exception:
+                        # Fallback: iterate shows and count episodes (slower)
+                        try:
+                            for show in section.all():
+                                counts["total_episodes"] += len(show.episodes())
+                        except Exception:
+                            pass
+
+            # Series is an alias for shows
+            counts["total_series"] = counts["total_shows"]
+
+            return counts
+
+        except Exception as e:
+            logging.error(f"Failed to get Plex media counts: {e}")
+            return {
+                "total_movies": 0,
+                "total_shows": 0,
+                "total_series": 0,
+                "total_episodes": 0,
+            }
+
     def get_server_info(self) -> dict:
         """Get lightweight server information without triggering user sync."""
         try:

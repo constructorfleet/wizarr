@@ -115,12 +115,34 @@ def _get_server_context(server_type: str) -> dict[str, str | None]:
         context["server_url"] = server.url or ""
         context["server_name"] = getattr(server, "name", "") or ""
         context["server_type"] = server.server_type
+
+        # Add media counts from the server
+        try:
+            from app.services.media.service import get_media_client
+
+            client = get_media_client(server.server_type, server)
+            if client and hasattr(client, "get_media_counts"):
+                counts = client.get_media_counts()
+                context["total_movies"] = counts.get("total_movies", 0)
+                context["total_shows"] = counts.get("total_shows", 0)
+                context["total_series"] = counts.get("total_series", 0)
+                context["total_episodes"] = counts.get("total_episodes", 0)
+        except Exception:
+            # If we fail to get counts, default to 0
+            context["total_movies"] = 0
+            context["total_shows"] = 0
+            context["total_series"] = 0
+            context["total_episodes"] = 0
     else:
         # Fallback values to prevent template errors
         context["external_url"] = ""
         context["server_url"] = ""
         context["server_name"] = ""
         context["server_type"] = server_type
+        context["total_movies"] = 0
+        context["total_shows"] = 0
+        context["total_series"] = 0
+        context["total_episodes"] = 0
 
     return context
 
@@ -300,6 +322,17 @@ def _render(post, ctx: dict, server_type: str | None = None) -> str:
         # Add server_type to context if provided and not None
         if server_type is not None:
             render_ctx["server_type"] = server_type
+
+        # Add Patreon status to context for conditional display
+        # Check if current user is authenticated and has Patreon support
+        if current_user.is_authenticated:
+            render_ctx["is_patreon_supporter"] = getattr(
+                current_user, "is_patreon_supporter", False
+            )
+            render_ctx["patreon_tier"] = getattr(current_user, "patreon_tier", None)
+        else:
+            render_ctx["is_patreon_supporter"] = False
+            render_ctx["patreon_tier"] = None
 
         # FIRST: Process card delimiters (|||) BEFORE widget placeholders
         content_with_cards = process_card_delimiters(post.content)

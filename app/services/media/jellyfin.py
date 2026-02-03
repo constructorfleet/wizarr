@@ -984,6 +984,37 @@ class JellyfinClient(RestApiMixin):
             )
             return 0
 
+    def get_media_counts(self) -> dict[str, int]:
+        """Get media counts from Jellyfin server (movies, shows, episodes)."""
+        try:
+            counts = {
+                "total_movies": 0,
+                "total_shows": 0,
+                "total_series": 0,  # Alias for shows
+                "total_episodes": 0,
+            }
+
+            # Jellyfin has a specific endpoint for item counts
+            response = self.get("/Items/Counts")
+            data = response.json()
+
+            # Map Jellyfin types to our counts
+            counts["total_movies"] = data.get("MovieCount", 0)
+            counts["total_shows"] = data.get("SeriesCount", 0)
+            counts["total_series"] = data.get("SeriesCount", 0)  # Alias
+            counts["total_episodes"] = data.get("EpisodeCount", 0)
+
+            return counts
+
+        except Exception as e:
+            logging.error(f"Jellyfin: Failed to get media counts – {e}")
+            return {
+                "total_movies": 0,
+                "total_shows": 0,
+                "total_series": 0,
+                "total_episodes": 0,
+            }
+
     def get_server_info(self) -> dict:
         """Get lightweight server information without triggering user sync."""
         try:
