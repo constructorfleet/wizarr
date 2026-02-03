@@ -53,4 +53,4 @@ title: "{{ _('Library Statistics') }}"
 
 ## 🎮 {{ _('Ready to Start?') }}
 
-{{ widget:button url="{{ settings.external_url }}" text=_("Open {{ settings.server_name }}") }}
+{{ widget:button url="{{ settings.external_url }}" text=_("Open") + " " + settings.server_name }}

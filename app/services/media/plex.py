@@ -1204,34 +1204,28 @@ class PlexClient(MediaClient):
             for section in self.server.library.sections():
                 section_type = getattr(section, "type", None)
                 if section_type == "movie":
-                    # Get total size attribute if available
+                    # Priority: Use totalSize or totalViewSize if available
                     if hasattr(section, "totalSize"):
                         counts["total_movies"] += section.totalSize
                     elif hasattr(section, "totalViewSize"):
                         counts["total_movies"] += section.totalViewSize
-                    else:
-                        # Fallback: count all items (slower)
-                        counts["total_movies"] += len(section.all())
+                    # Note: Removed inefficient fallback that loads all items
+                    # If neither attribute exists, keep count at 0
                 elif section_type == "show":
-                    # Get show count
+                    # Get show count - prefer size attributes
                     if hasattr(section, "totalSize"):
                         counts["total_shows"] += section.totalSize
                     elif hasattr(section, "totalViewSize"):
                         counts["total_shows"] += section.totalViewSize
-                    else:
-                        counts["total_shows"] += len(section.all())
 
-                    # Count episodes - use search for efficiency
+                    # Count episodes efficiently using search
                     try:
                         episodes = section.search(libtype="episode")
                         counts["total_episodes"] += len(episodes)
                     except Exception:
-                        # Fallback: iterate shows and count episodes (slower)
-                        try:
-                            for show in section.all():
-                                counts["total_episodes"] += len(show.episodes())
-                        except Exception:
-                            pass
+                        # If search fails, we skip the episode count
+                        # Note: Removed inefficient nested loop fallback
+                        pass
 
             # Series is an alias for shows
             counts["total_series"] = counts["total_shows"]

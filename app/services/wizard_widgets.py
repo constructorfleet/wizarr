@@ -294,7 +294,7 @@ class MediaCountsWidget(WizardWidget):
     def __init__(self):
         template = """
         <div class="media-counts-widget my-6">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div class="stat-card rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 text-center">
                     <div class="stat-value text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">
                         {{ total_movies }}
@@ -308,15 +308,7 @@ class MediaCountsWidget(WizardWidget):
                         {{ total_shows }}
                     </div>
                     <div class="stat-label text-sm font-medium text-gray-600 dark:text-gray-400">
-                        {{ _("Shows") }}
-                    </div>
-                </div>
-                <div class="stat-card rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 text-center">
-                    <div class="stat-value text-3xl font-bold text-green-600 dark:text-green-400 mb-1">
-                        {{ total_series }}
-                    </div>
-                    <div class="stat-label text-sm font-medium text-gray-600 dark:text-gray-400">
-                        {{ _("Series") }}
+                        {{ _("TV Shows") }}
                     </div>
                 </div>
                 <div class="stat-card rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-4 text-center">
