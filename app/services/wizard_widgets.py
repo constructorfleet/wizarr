@@ -288,10 +288,93 @@ class ButtonWidget(WizardWidget):
             return f'\n\n<div class="text-sm text-gray-500 italic">Button widget error: {e}</div>\n\n'
 
 
+class MediaCountsWidget(WizardWidget):
+    """Widget to display total media counts (movies, shows, episodes) in a styled card."""
+
+    def __init__(self):
+        template = """
+        <div class="media-counts-widget my-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div class="stat-card rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 text-center">
+                    <div class="stat-value text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+                        {{ total_movies }}
+                    </div>
+                    <div class="stat-label text-sm font-medium text-gray-600 dark:text-gray-400">
+                        {{ _("Movies") }}
+                    </div>
+                </div>
+                <div class="stat-card rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 text-center">
+                    <div class="stat-value text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1">
+                        {{ total_shows }}
+                    </div>
+                    <div class="stat-label text-sm font-medium text-gray-600 dark:text-gray-400">
+                        {{ _("TV Shows") }}
+                    </div>
+                </div>
+                <div class="stat-card rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-4 text-center">
+                    <div class="stat-value text-3xl font-bold text-orange-600 dark:text-orange-400 mb-1">
+                        {{ total_episodes }}
+                    </div>
+                    <div class="stat-label text-sm font-medium text-gray-600 dark:text-gray-400">
+                        {{ _("Episodes") }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        """
+        super().__init__("media_counts", template)
+
+    def get_data(self, server_type: str, **kwargs) -> dict[str, Any]:
+        """Fetch media counts from the server."""
+        try:
+            from app.models import MediaServer
+
+            # Get the server for the given type
+            server = MediaServer.query.filter_by(server_type=server_type).first()
+
+            if not server:
+                # Try to get any server if none match the exact type
+                server = MediaServer.query.first()
+
+            if not server:
+                return {
+                    "total_movies": 0,
+                    "total_shows": 0,
+                    "total_series": 0,
+                    "total_episodes": 0,
+                }
+
+            # Get media client and fetch counts
+            from app.services.media.service import get_media_client
+
+            client = get_media_client(server.server_type, server)
+
+            if not client or not hasattr(client, "get_media_counts"):
+                return {
+                    "total_movies": 0,
+                    "total_shows": 0,
+                    "total_series": 0,
+                    "total_episodes": 0,
+                }
+
+            counts = client.get_media_counts()
+            return counts
+
+        except Exception:
+            # Return empty data on any error to fail gracefully
+            return {
+                "total_movies": 0,
+                "total_shows": 0,
+                "total_series": 0,
+                "total_episodes": 0,
+            }
+
+
 # Widget registry
 WIDGET_REGISTRY = {
     "recently_added_media": RecentlyAddedMediaWidget(),
     "button": ButtonWidget(),
+    "media_counts": MediaCountsWidget(),
 }
 
 

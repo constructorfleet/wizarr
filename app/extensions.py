@@ -84,6 +84,7 @@ def init_extensions(app):
             check_expiring,
         )
         from app.tasks.update_check import fetch_and_cache_manifest
+        from app.tasks.patreon_refresh import refresh_patreon_token
 
         # Add the expiry check task to the scheduler, passing the app instance
         scheduler.add_job(
@@ -100,6 +101,15 @@ def init_extensions(app):
             func=lambda: fetch_and_cache_manifest(app),
             trigger="interval",
             hours=24,
+            replace_existing=True,
+        )
+
+        # Add Patreon token refresh task to run every hour
+        scheduler.add_job(
+            id="refresh_patreon_token",
+            func=lambda: refresh_patreon_token(app),
+            trigger="interval",
+            hours=1,
             replace_existing=True,
         )
 
