@@ -8,7 +8,7 @@ on:
 
 jobs:
   compile:
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Compile .mo

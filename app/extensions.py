@@ -83,8 +83,8 @@ def init_extensions(app):
             _get_expiry_check_interval,
             check_expiring,
         )
-        from app.tasks.update_check import fetch_and_cache_manifest
         from app.tasks.patreon_refresh import refresh_patreon_token
+        from app.tasks.update_check import fetch_and_cache_manifest
 
         # Add the expiry check task to the scheduler, passing the app instance
         scheduler.add_job(

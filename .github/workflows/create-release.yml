@@ -7,7 +7,7 @@ on:
 
 jobs:
   create-release:
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     if: |
       github.event.pull_request.merged == true && 
       startsWith(github.event.pull_request.title, 'Release v') &&
@@ -75,4 +75,4 @@ jobs:
           echo "1. ⚙️ **wizarr-release** workflow is now triggered (Docker build)" >> $GITHUB_STEP_SUMMARY
           echo "2. 📦 Docker images built for linux/amd64 and linux/arm64" >> $GITHUB_STEP_SUMMARY
           echo "3. 🏷️ Images tagged as \`:latest\` and \`:${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "4. 🚀 Images pushed to ghcr.io/${{ github.repository_owner }}/wizarr" >> $GITHUB_STEP_SUMMARY
+          echo "4. 🚀 Images pushed to ghcr.io/${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
