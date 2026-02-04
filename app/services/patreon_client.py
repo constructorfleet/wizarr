@@ -22,8 +22,6 @@ logger = logging.getLogger(__name__)
 class PatreonTokenExpiredError(Exception):
     """Raised when Patreon token is expired and refresh fails."""
 
-    pass
-
 
 class PatreonClient:
     """Client for Patreon API with automatic token refresh.
@@ -131,11 +129,7 @@ class PatreonClient:
         Returns:
             True if all required credentials are present
         """
-        return bool(
-            self._client_id
-            and self._client_secret
-            and self._refresh_token
-        )
+        return bool(self._client_id and self._client_secret and self._refresh_token)
 
     def _refresh_access_token(self) -> None:
         """Refresh the access token using the refresh token.
